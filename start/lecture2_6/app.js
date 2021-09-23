@@ -98,7 +98,10 @@ class App{
 
         loader.load(
             //resource URL
-            'office-chair.fbx',
+            //'office-chair.fbx',
+            'https://zandermn.github.io/Hello-World/WebXRAssest/lamp.glb',
+
+
             //called when the resource is loaded
             function(object){
                 self.chair = object;
