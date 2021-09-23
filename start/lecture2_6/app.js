@@ -33,8 +33,10 @@ class App{
 		container.appendChild( this.renderer.domElement );
 		
         //Add code here
-        
-        
+        this.loadingBar = new LoadingBar();
+        //this.loadGLTF();
+        this.loadFBX();
+
         this.controls = new OrbitControls( this.camera, this.renderer.domElement );
         this.controls.target.set(0, 3.5, 0);
         this.controls.update();
@@ -62,9 +64,62 @@ class App{
     
     loadGLTF(){
         const self = this;
+        const loader = new GLTFLoader().setPath(('../../assets/'));
+
+        loader.load(
+            //resource URL
+            'office-chair.glb',
+            //called when the resource is loaded
+            function(gltf){
+                const bbox = new THREE.Box3().setFromObject( gltf.scene );
+                console.log(`min:${bbox.min.x.toFixed(2)},${bbox.min.y.toFixed(2)},${bbox.min.z.toFixed(2)} -  
+                    max:${bbox.max.x.toFixed(2)},${bbox.max.y.toFixed(2)},${bbox.max.z.toFixed(2)}`);
+                    
+                self.chair = gltf.scene;
+                self.scene.add(gltf.scene);
+                self.loadingBar.visible = false;
+                self.renderer.setAnimationLoop(self.render.bind(self));
+            },
+            //called while loading is progressing
+            function(xhr){
+                self.loadingBar.progress = xhr.loaded/xhr.total;
+            },
+            //called when something is wrong
+            function(err){
+                console.log('An error happeded');
+            }
+        )
+
     }
     
     loadFBX(){
+        const self = this;
+        const loader = new FBXLoader().setPath(('../../assets/'));
+
+        loader.load(
+            //resource URL
+            'office-chair.fbx',
+            //called when the resource is loaded
+            function(object){
+                self.chair = object;
+
+                const bbox = new THREE.Box3().setFromObject( object );
+                console.log(`min:${bbox.min.x.toFixed(2)},${bbox.min.y.toFixed(2)},${bbox.min.z.toFixed(2)} -  
+                    max:${bbox.max.x.toFixed(2)},${bbox.max.y.toFixed(2)},${bbox.max.z.toFixed(2)}`);
+                
+                self.scene.add(object);
+                self.loadingBar.visible = false;
+                self.renderer.setAnimationLoop(self.render.bind(self));
+            },
+            //called while loading is progressing
+            function(xhr){
+                self.loadingBar.progress = xhr.loaded/xhr.total;
+            },
+            //called when something is wrong
+            function(err){
+                console.log('An error happeded');
+            }
+        )
     }
     
     resize(){
