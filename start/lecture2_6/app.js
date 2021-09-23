@@ -34,8 +34,8 @@ class App{
 		
         //Add code here
         this.loadingBar = new LoadingBar();
-        //this.loadGLTF();
-        this.loadFBX();
+        this.loadGLTF();
+        //this.loadFBX();
 
         this.controls = new OrbitControls( this.camera, this.renderer.domElement );
         this.controls.target.set(0, 3.5, 0);
@@ -69,6 +69,9 @@ class App{
         loader.load(
             //resource URL
             'office-chair.glb',
+            //'https://zandermn.github.io/Hello-World/WebXRAssest/scene.gltf',
+            //'https://threejsfundamentals.org/threejs/resources/models/cartoon_lowpoly_small_city_free_pack/scene.gltf',
+
             //called when the resource is loaded
             function(gltf){
                 const bbox = new THREE.Box3().setFromObject( gltf.scene );
@@ -98,8 +101,8 @@ class App{
 
         loader.load(
             //resource URL
-            //'office-chair.fbx',
-            'https://zandermn.github.io/Hello-World/WebXRAssest/lamp.glb',
+            'office-chair.fbx',
+            //'https://zandermn.github.io/Hello-World/WebXRAssest/scene.gltf',
 
 
             //called when the resource is loaded
