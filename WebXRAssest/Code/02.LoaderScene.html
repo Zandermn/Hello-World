@@ -14,10 +14,10 @@
 <body>
     <script type="module">
         //import * as THREE from './HELLO-WORLD/WebXRAssest/FirstThree/build/three.module.js';
-        import * as THREE from '../build/three.module.js';
-        import Stats from '../jsm/libs/stats.module.js';
-        import { GLTFLoader } from '../jsm/loaders/GLTFLoader.js';
-        import { OrbitControls } from '../jsm/controls/OrbitControls.js';
+        import * as THREE from '/WebXRAccest/build/three.module.js';
+        import Stats from '/WebXRAccest/jsm/libs/stats.module.js';
+        import { GLTFLoader } from '/WebXRAccest/jsm/loaders/GLTFLoader.js';
+        import { OrbitControls } from '/WebXRAccest/jsm/controls/OrbitControls.js';
 
         const stats = new Stats();
         document.body.appendChild(stats.dom);
@@ -95,7 +95,7 @@
 
         //gltf loader
         const loader = new GLTFLoader();
-            loader.load( 'model/lamp.glb', 
+            loader.load( '/WebXRAccest/model/lamp.glb', 
             function ( gltf ) {
                 gltf.scene.scale.set(0.1,0.1,0.1)
 
