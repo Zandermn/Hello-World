@@ -39,11 +39,10 @@ class App{
         this.stats = new Stats();
         container.appendChild( this.stats.dom );
         
+        //Function calls
         this.initScene();
         this.setupXR();
-        
         window.addEventListener('resize', this.resize.bind(this) );
-        
         this.renderer.setAnimationLoop( this.render.bind(this) );
 	}	
     
@@ -52,11 +51,33 @@ class App{
     }
     
     initScene(){
+        this.radius = 0.08;
         
+        this.room = new THREE.LineSegments(
+					new BoxLineGeometry( 6, 6, 6, 10, 10, 10 ),
+					new THREE.LineBasicMaterial( { color: 0x808080 } )
+				);
+        this.room.geometry.translate( 0, 3, 0 );
+        this.scene.add( this.room );
+        
+        const geometry = new THREE.IcosahedronBufferGeometry( this.radius, 2 );
+
+        for ( let i = 0; i < 200; i ++ ) {
+
+            const object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
+
+            object.position.x = this.random( -2, 2 );
+            object.position.y = this.random( -2, 2 );
+            object.position.z = this.random( -2, 2 );
+
+            this.room.add( object );
+
+        }
     }
     
     setupXR(){
-        
+        this.renderer.xr.enabled = true;
+        document.body.appendChild(VRButton.createButton(this.renderer));
     }
     
     resize(){
@@ -65,7 +86,10 @@ class App{
         this.renderer.setSize( window.innerWidth, window.innerHeight );  
     }
     
-	render( ) {   
+	render( ) {  
+        //try to rotate
+        //this.room.rotateY(0.001);
+
         this.stats.update();
         
         this.renderer.render( this.scene, this.camera );
