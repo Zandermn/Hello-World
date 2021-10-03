@@ -13,6 +13,9 @@
 
 <body>
     <script type="module">
+        //THE url for viewing this file 8080 or 8081 or etc. 
+        //http://10.8.8.27:8081/WebXRAssest/Code/02.LoaderScene.html        
+
         //import * as THREE from './HELLO-WORLD/WebXRAssest/FirstThree/build/three.module.js';
         import * as THREE from '../../WebXRAssest/build/three.module.js';
         import Stats from '../../WebXRAssest/jsm/libs/stats.module.js';
@@ -95,43 +98,103 @@
 
         //gltf loader 4096 texture
         const loader = new GLTFLoader();
-            loader.load( '../../WebXRAssest/model/lamp.glb', 
+            loader.load( 
+                '../../WebXRAssest/model/lamp.glb', 
+                function ( gltf ) {
+                    const model = gltf.scene;
+                    model.scale.set(0.1,0.1,0.1);
+                    model.position.set(0,0,0);
+
+                    gltf.scene.traverse( function( node ) {
+                        if ( node.isMesh ) { node.castShadow = true; node.receiveShadow = true;}
+                    } );
+
+                    scene.add( gltf.scene );
+
+                }, 
+                undefined, 
+                function ( error ) {
+                    console.error( error );
+                } 
+            );
+
+        //gltf loader 1024 texture
+        const loader1024 = new GLTFLoader();
+            loader1024.load( 
+            '../../WebXRAssest/model/lamp1024.glb', 
             function ( gltf ) {
-                gltf.scene.scale.set(0.1,0.1,0.1)
+                const model = gltf.scene;
+                model.scale.set(0.1,0.1,0.1);
+                model.position.set(0,0,-5);
 
-                gltf.scene.traverse( function( node ) {
-                    if ( node.isMesh ) { node.castShadow = true; node.receiveShadow = true;}
-                } );
-
+                gltf.scene.traverse(
+                    function( node ) 
+                    {
+                        if ( node.isMesh ) { 
+                            node.castShadow = true; 
+                            node.receiveShadow = true;
+                        }
+                    } 
+                );
                 scene.add( gltf.scene );
 
             }, undefined, function ( error ) {
                 console.error( error );
             } );
 
-        //gltf loader 1024 texture
-        // const loader1024 = new GLTFLoader();
-        //     loader1024.load( '../../WebXRAssest/model/lamp1024.glb', 
-        //     function ( gltf ) {
-        //         gltf.scene.scale.set(0.1,0.1,0.1)
-        //         gltf.scene.transform.set(100,100,100)
-        //         gltf.scene.traverse(
-        //             function( node ) 
-        //             {
-        //                 if ( node.isMesh ) { 
-        //                     node.castShadow = true; 
-        //                     node.receiveShadow = true;
-        //                 }
-        //             } 
-        //         );
-        //         scene.add( gltf.scene );
 
-        //     }, undefined, function ( error ) {
-        //         console.error( error );
-        //     } );
+        //text 
+        const loaderFont = new THREE.FontLoader();
+        loaderFont.load(
+            '../../WebXRAssest/Fonts/Neon_Sans_Regular.json',
+            function(font){
+                const geometry0 = new THREE.TextGeometry('This model have\n4096x4096 texture map.',
+                {
+                    font:font,
+                    size:6,
+                    height:1,
+                })
+
+                const geometry1 = new THREE.TextGeometry('This model have\n1024x1024 texture map.',
+                {
+                    font:font,
+                    size:6,
+                    height:1,
+                })
+
+                const textMesh0 = new THREE.Mesh(geometry0,[
+                    new THREE.MeshPhongMaterial({color:0x006699}),
+                    new THREE.MeshPhongMaterial({color:0xaaaaaa})
+                ])
+
+                textMesh0.castShadow = true
+                textMesh0.receiveShadow = true
+                textMesh0.position.set(1,2,0)
+                textMesh0.scale.set(0.02, 0.02, 0.02)
+
+                const textMesh1 = new THREE.Mesh(geometry1,[
+                    new THREE.MeshPhongMaterial({color:0x006699}),
+                    new THREE.MeshPhongMaterial({color:0xaaaaaa})
+                ])
+
+                textMesh1.castShadow = true
+                textMesh1.receiveShadow = true
+                textMesh1.position.set(1,2,-5)
+                textMesh1.scale.set(0.02, 0.02, 0.02)
 
 
-        //light HemisphereLight
+                scene.add(textMesh0)
+                scene.add(textMesh1)
+            }
+        );
+
+
+
+
+
+
+
+        //light HemisphereLight and helper
         const hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
 			hemiLight.position.set( 0, 10, 0 );
 			scene.add( hemiLight );
@@ -140,7 +203,7 @@
 			scene.add( hemiLightHelper );
 
 
-        //light DirectionalLight
+        //light DirectionalLight and helper
         const dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
         dirLight.castShadow = true;
         dirLight.color.setHSL( 0.1, 1, 0.95 );
@@ -165,8 +228,9 @@
         const dirLightHelper = new THREE.DirectionalLightHelper( dirLight, 10 );
         scene.add( dirLightHelper );
 
-        const i = 0;
 
+
+        
         //anime & render
         function animate() {
             stats.begin();
@@ -193,11 +257,13 @@
         }
 
         //windows resize
-        window.addEventListener("resize", function () {
+        window.addEventListener("resize", onWindowResize);
+        
+        function onWindowResize() {
             renderer.setSize(window.innerWidth, window.innerHeight);
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
-            }, false);
+        }
 
     </script>
 </body>
