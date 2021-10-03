@@ -93,7 +93,7 @@
         
 
 
-        //gltf loader
+        //gltf loader 4096 texture
         const loader = new GLTFLoader();
             loader.load( '../../WebXRAssest/model/lamp.glb', 
             function ( gltf ) {
@@ -108,6 +108,27 @@
             }, undefined, function ( error ) {
                 console.error( error );
             } );
+
+        //gltf loader 1024 texture
+        // const loader1024 = new GLTFLoader();
+        //     loader1024.load( '../../WebXRAssest/model/lamp1024.glb', 
+        //     function ( gltf ) {
+        //         gltf.scene.scale.set(0.1,0.1,0.1)
+        //         gltf.scene.transform.set(100,100,100)
+        //         gltf.scene.traverse(
+        //             function( node ) 
+        //             {
+        //                 if ( node.isMesh ) { 
+        //                     node.castShadow = true; 
+        //                     node.receiveShadow = true;
+        //                 }
+        //             } 
+        //         );
+        //         scene.add( gltf.scene );
+
+        //     }, undefined, function ( error ) {
+        //         console.error( error );
+        //     } );
 
 
         //light HemisphereLight
