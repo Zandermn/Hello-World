@@ -93,9 +93,7 @@
                         }
                     }
                 );
-
                 scene.add(gltf.scene);
-
             },
             undefined,
             function (error) {
@@ -108,6 +106,14 @@
         CreateLamp(-1,0,6);
         CreateLamp(12,0,-6);
         CreateLamp(12,0,6);
+
+        CreateBarrel(0,0,-1);
+        CreateBarrel(0.7,0,-0.8);
+        CreateBarrel(6,0,-3.3);
+        CreateBarrel(7,0,-4.1);
+
+        CreateBox(5.3,0,-4.5);
+
 
         //light HemisphereLight and helper
         const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
@@ -184,6 +190,58 @@
 
             //HandleResize function from flycontroller
             //controls.handleResize();
+        }
+
+        function CreateBarrel(x,y,z)
+        {
+            const loaderB = new GLTFLoader();
+            loaderB.load(
+                '../../WebXRAssest/model/Barrel.glb',
+                function (gltf) {
+                    const model = gltf.scene;
+                    model.position.set(x,y,z);
+
+                    gltf.scene.traverse(
+                        function (node) {
+                            if (node.isMesh) {
+                                node.castShadow = true;
+                                node.receiveShadow = true;
+                            }
+                        }
+                    );
+                    scene.add(gltf.scene);
+                }, 
+                undefined, 
+                function (error) {
+                    console.error("Barrel had some problem");
+                }
+            );
+        }
+
+        function CreateBox(x,y,z)
+        {
+            const loaderBox = new GLTFLoader();
+            loaderBox.load(
+                '../../WebXRAssest/model/Boxes.glb',
+                function (gltf) {
+                    const model = gltf.scene;
+                    model.position.set(x,y,z);
+
+                    gltf.scene.traverse(
+                        function (node) {
+                            if (node.isMesh) {
+                                node.castShadow = true;
+                                node.receiveShadow = true;
+                            }
+                        }
+                    );
+                    scene.add(gltf.scene);
+                }, 
+                undefined, 
+                function (error) {
+                    console.error("Boxes had some problem");
+                }
+            );
         }
 
         //function that create all the lamps
