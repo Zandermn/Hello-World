@@ -38,7 +38,7 @@
         camera.position.y = 1.6;
         camera.lookAt(0, 40, 0);
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPerference: "high-performance" });
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.shadowMap.enabled = true;
@@ -161,18 +161,17 @@
             //CreateBarrel(x,y,z)
             //CreateBox(x,y,z)
             //CreateLamp(x,y,z)
-        
-
-        
 
         //SetupXr
-        function setupVR(){
+        function setupVR()
+        {
             renderer.xr.enabled = true;
             document.body.appendChild(VRButton.createButton(renderer));
         }
 
         //anime & render
-        function animate() {
+        function animate()
+        {
             stats.begin();
 
             render();
@@ -181,7 +180,8 @@
         };  
 
         //render
-        function render() {
+        function render()
+        {
             //first person controls update
             //controls.update( clock.getDelta() );
 
@@ -195,7 +195,8 @@
             renderer.render(scene, camera);
         }
 
-        function onWindowResize() {
+        function onWindowResize()
+        {
             renderer.setSize(window.innerWidth, window.innerHeight);
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
