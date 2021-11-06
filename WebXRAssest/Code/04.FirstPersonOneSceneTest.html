@@ -8,14 +8,47 @@
         body {
             margin: 0;
         }
+
+        #blocker {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        #instructions {
+            width: 100%;
+            height: 100%;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            text-align: center;
+            font-size: 14px;
+            cursor: pointer;
+        }
     </style>
 </head>
 
 <body>
+    <div id="blocker">
+        <div id="instructions">
+            <p style="font-size:36px">
+                Click to play
+            </p>
+            <p>
+                Move: WASD<br/>
+                Jump: SPACE<br/>
+                Look: MOUSE
+            </p>
+        </div>
+    </div>
 
     <script type="module">
         //THE url for viewing this file 8080 or 8081 or etc. 
-        //http://10.8.8.27:8081/WebXRAssest/Code/03.OneSceneTest.html    
+        //http://10.8.8.27:8081/WebXRAssest/Code/04.FirstPersonOneSceneTest.html    
 
         //import * as THREE from './HELLO-WORLD/WebXRAssest/FirstThree/build/three.module.js';
         import * as THREE from '../../WebXRAssest/build/three.module.js';
@@ -50,19 +83,127 @@
         //renderer.outputEncoding = THREE.sRGBEncoding;
         document.body.appendChild(renderer.domElement);
 
-        //OrbitControls 
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.target.set(0, 1.6, 0);
-        controls.minDistance = 0.15;
-        controls.maxDistance = 100;
-        controls.enableDamping = true;
-        controls.autoRotate = true;
-        controls.autoRotateSpeed = 0.4;
+        //=======OrbitControls ===========
+        // const controls = new OrbitControls(camera, renderer.domElement);
+        // controls.target.set(0, 1.6, 0);
+        // controls.minDistance = 0.15;
+        // controls.maxDistance = 100;
+        // controls.enableDamping = true;
+        // controls.autoRotate = true;
+        // controls.autoRotateSpeed = 0.4;
 
         //FirstPerson controls
         // const controls = new FirstPersonControls( camera, renderer.domElement );
 		// controls.movementSpeed = 15;
 		// controls.lookSpeed = 0.2;
+
+        //======Real First Person Controls========
+        //values
+        let moveForward = false;
+        let moveBackward = false;
+        let moveLeft = false;
+        let moveRight = false;
+        let canJump = false;
+
+        let prevTime = performance.now();
+        const velocity = new THREE.Vector3();
+        const direction = new THREE.Vector3();
+        const vertex = new THREE.Vector3();
+        const color = new THREE.Color();
+
+
+        controls = new PointerLockControls( camera, document.body );
+
+        const blocker = document.getElementById( 'blocker' );
+        const instructions = document.getElementById( 'instructions' );
+
+        instructions.addEventListener( 'click', function () {
+
+            controls.lock();
+
+        } );
+
+        controls.addEventListener( 'lock', function () {
+
+            instructions.style.display = 'none';
+            blocker.style.display = 'none';
+
+        } );
+
+        controls.addEventListener( 'unlock', function () {
+
+            blocker.style.display = 'block';
+            instructions.style.display = '';
+
+        } );
+
+        scene.add( controls.getObject() );
+
+        const onKeyDown = function ( event ) {
+
+            switch ( event.code ) {
+
+                case 'ArrowUp':
+                case 'KeyW':
+                    moveForward = true;
+                    break;
+
+                case 'ArrowLeft':
+                case 'KeyA':
+                    moveLeft = true;
+                    break;
+
+                case 'ArrowDown':
+                case 'KeyS':
+                    moveBackward = true;
+                    break;
+
+                case 'ArrowRight':
+                case 'KeyD':
+                    moveRight = true;
+                    break;
+
+                case 'Space':
+                    if ( canJump === true ) velocity.y += 350;
+                    canJump = false;
+                    break;
+
+            }
+
+        };
+
+        const onKeyUp = function ( event ) {
+
+            switch ( event.code ) {
+
+                case 'ArrowUp':
+                case 'KeyW':
+                    moveForward = false;
+                    break;
+
+                case 'ArrowLeft':
+                case 'KeyA':
+                    moveLeft = false;
+                    break;
+
+                case 'ArrowDown':
+                case 'KeyS':
+                    moveBackward = false;
+                    break;
+
+                case 'ArrowRight':
+                case 'KeyD':
+                    moveRight = false;
+                    break;
+
+            }
+
+        };
+
+        document.addEventListener( 'keydown', onKeyDown );
+        document.addEventListener( 'keyup', onKeyUp );
+
+
 
 
         //cube
@@ -117,7 +258,6 @@
         const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
         hemiLight.position.set(0, 10, 0);
         scene.add(hemiLight);
-
         // const hemiLightHelper = new THREE.HemisphereLightHelper(hemiLight, 0.5);
         // scene.add(hemiLightHelper);
 
@@ -146,10 +286,12 @@
         //Set up vr button and session
         setupVR();
 
+        //Animation
         renderer.setAnimationLoop(animate);
         
         //windows resize
         window.addEventListener("resize", onWindowResize);
+
 
 
         //=========================================================
@@ -191,7 +333,7 @@
             mesh.position.z = 2 * Math.sin(r);
 
             //Orbital enable damping is true
-            controls.update();
+            //controls.update();
 
             renderer.render(scene, camera);
         }
