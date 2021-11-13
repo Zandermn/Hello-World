@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>LoaderTest</title>
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <script type="module">
+        //THE url for viewing this file 8080 or 8081 or etc. 
+        //http://10.8.8.27:8081/WebXRAssest126/Code/05_03withInstanceMesh.html 
+
+        //import
+        import * as THREE from '../../WebXRAssest126/build/three.module.js';
+        import Stats from '../../WebXRAssest126/examples/jsm/libs/stats.module.js';
+        import { VRButton } from '../../WebXRAssest126/examples/jsm/webxr/VRButton.js';
+        import { GLTFLoader } from '../../WebXRAssest126/examples/jsm/loaders/GLTFLoader.js';
+        import { OrbitControls } from '../../WebXRAssest126/examples/jsm/controls/OrbitControls.js';
+
+        //create stats monitor the performance
+        const stats = new Stats();
+        document.body.appendChild(stats.dom);
+        
+        //create scene, camera, renderer and clock
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0f0f0f);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.05, 100);
+        camera.position.z = 3;
+        camera.position.y = 1.6;
+        camera.lookAt(0, 40, 0);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPerference: "high-performance" });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        //renderer.setPixelRatio(2);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+        //const clock = new THREE.Clock();
+        //This sRGBEncoding don't take light?
+        //renderer.outputEncoding = THREE.sRGBEncoding;
+        document.body.appendChild(renderer.domElement);
+
+        //OrbitControls 
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.target.set(0, 1.6, 0);
+        controls.minDistance = 0.15;
+        controls.maxDistance = 100;
+        controls.enableDamping = true;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.4;
+
+        //FirstPerson controls
+        // const controls = new FirstPersonControls( camera, renderer.domElement );
+		// controls.movementSpeed = 15;
+		// controls.lookSpeed = 0.2;
+
+
+        //cube
+        const cubeSize = 1;
+        const cubeGeo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+        const cubeMat = new THREE.MeshPhongMaterial({ color: '#8AC' });
+        const mesh = new THREE.Mesh(cubeGeo, cubeMat);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        mesh.position.set(-1, 2, 1);
+        scene.add(mesh);
+
+        //gltf loader scene
+        const loader = new GLTFLoader();
+        loader.load(
+            '../../WebXRAssest/model/CyberCar.glb',
+            function (gltf) {
+                const model = gltf.scene;
+                //model.scale.set(0.1, 0.1, 0.1);
+                model.position.set(0, 0, 0);
+
+                gltf.scene.traverse(
+                    function (node) {
+                        if (node.isMesh) {
+                            node.castShadow = true;
+                            node.receiveShadow = true;
+                        }
+                    }
+                );
+                scene.add(gltf.scene);
+            },
+            undefined,
+            function (error) {
+                console.error("Scene had some problem");
+            }
+        );
+
+        //Add lamp
+        CreateLamp(-1,0,-6);
+        CreateLamp(-1,0,6);
+        CreateLamp(12,0,-6);
+        CreateLamp(12,0,6);
+
+        CreateBarrel(0,0,-1);
+        CreateBarrel(0.7,0,-0.8);
+        CreateBarrel(6,0,-3.3);
+        CreateBarrel(7,0,-4.1);
+
+        CreateBox(5.3,0,-4.5);
+
+        //light HemisphereLight and helper
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
+        hemiLight.position.set(0, 10, 0);
+        scene.add(hemiLight);
+
+        // const hemiLightHelper = new THREE.HemisphereLightHelper(hemiLight, 0.5);
+        // scene.add(hemiLightHelper);
+
+        //light DirectionalLight and helper
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+        dirLight.castShadow = true;
+        dirLight.color.setHSL(0.1, 1, 0.95);
+        dirLight.position.set(- 1, 1.75, 1);
+        dirLight.position.multiplyScalar(8);
+        dirLight.shadow.mapSize.width = 2048;
+        dirLight.shadow.mapSize.height = 2048;
+        const d = 20;
+        dirLight.shadow.camera.left = - d;
+        dirLight.shadow.camera.right = d;
+        dirLight.shadow.camera.top = d;
+        dirLight.shadow.camera.bottom = - d;
+        dirLight.shadow.camera.far = 1000;
+        dirLight.shadow.bias = - 0.0001;
+        scene.add(dirLight);
+        scene.add(dirLight.target);
+        // const cameraHelper = new THREE.CameraHelper(dirLight.shadow.camera);
+        // scene.add(cameraHelper);
+        // const dirLightHelper = new THREE.DirectionalLightHelper(dirLight, 10);
+        // scene.add(dirLightHelper);
+
+        //Set up vr button and session
+        setupVR();
+
+        renderer.setAnimationLoop(animate);
+        
+        //windows resize
+        window.addEventListener("resize", onWindowResize);
+
+
+        //=========================================================
+        //Below are all the functions
+        //=========================================================
+            //setupVR()
+            //animate()
+            //render()
+            //onWindowResize()
+            //CreateBarrel(x,y,z)
+            //CreateBox(x,y,z)
+            //CreateLamp(x,y,z)
+
+        //SetupXr
+        function setupVR()
+        {
+            renderer.xr.enabled = true;
+            document.body.appendChild(VRButton.createButton(renderer));
+        }
+
+        //anime & render
+        function animate()
+        {
+            stats.begin();
+
+            render();
+
+            stats.end();
+        };  
+
+        //render
+        function render()
+        {
+            //first person controls update
+            //controls.update( clock.getDelta() );
+
+            const r = Date.now() * 0.0005;
+            mesh.position.x = 2 * Math.cos(r);
+            mesh.position.z = 2 * Math.sin(r);
+
+            //Orbital enable damping is true
+            controls.update();
+
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize()
+        {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            //renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            //HandleResize function from flycontroller
+            //controls.handleResize();
+        }
+
+        function CreateBarrel(x,y,z)
+        {
+            const loaderB = new GLTFLoader();
+            loaderB.load(
+                '../../WebXRAssest/model/Barrel.glb',
+                function (gltf) {
+                    const model = gltf.scene;
+                    model.position.set(x,y,z);
+
+                    gltf.scene.traverse(
+                        function (node) {
+                            if (node.isMesh) {
+                                node.castShadow = true;
+                                node.receiveShadow = true;
+                            }
+                        }
+                    );
+                    scene.add(gltf.scene);
+                }, 
+                undefined, 
+                function (error) {
+                    console.error("Barrel had some problem");
+                }
+            );
+        }
+
+        function CreateBox(x,y,z)
+        {
+            const loaderBox = new GLTFLoader();
+            loaderBox.load(
+                '../../WebXRAssest/model/Boxes.glb',
+                function (gltf) {
+                    const model = gltf.scene;
+                    model.position.set(x,y,z);
+
+                    gltf.scene.traverse(
+                        function (node) {
+                            if (node.isMesh) {
+                                node.castShadow = true;
+                                node.receiveShadow = true;
+                            }
+                        }
+                    );
+                    scene.add(gltf.scene);
+                }, 
+                undefined, 
+                function (error) {
+                    console.error("Boxes had some problem");
+                }
+            );
+        }
+
+        //function that create all the lamps
+        function CreateLamp(x,y,z)
+        {
+            const spotlightx = x - 1.7;
+            const spotlighty = y + 3.5;
+            const spotlightz = z;
+
+            //Lamp
+            const loader1024 = new GLTFLoader();
+            loader1024.load(
+                '../../WebXRAssest/model/lamp1024.glb',
+                function (gltf) {
+                    const model = gltf.scene;
+                    model.scale.set(0.1, 0.1, 0.1);
+                    model.position.set(x,y,z);
+
+                    gltf.scene.traverse(
+                        function (node) {
+                            if (node.isMesh) {
+                                node.castShadow = true;
+                                node.receiveShadow = true;
+                            }
+                        }
+                    );
+                    scene.add(gltf.scene);
+
+                }, undefined, function (error) {
+                    console.error("Lamp had some problem");
+                }
+            );
+
+            const spotLight = new THREE.SpotLight( 0xffffff );
+            spotLight.position.set( spotlightx, spotlighty, spotlightz );
+            spotLight.castShadow = true;
+            spotLight.shadow.mapSize.width = 1024;
+            spotLight.shadow.mapSize.height = 1024;
+            spotLight.shadow.camera.near = 10;
+            spotLight.shadow.camera.far = 500;
+            spotLight.shadow.camera.fov = 30;
+            spotLight.penumbra = 0.5;
+            spotLight.intensity = 2;
+            spotLight.distance = 50;
+
+            const targetObject = new THREE.Object3D();
+            targetObject.position.set(spotlightx, spotlighty - 1, spotlightz);
+            scene.add(targetObject);
+
+            spotLight.target = targetObject;
+            scene.add( spotLight );
+
+        }
+
+    </script>
+</body>
+
+</html>
