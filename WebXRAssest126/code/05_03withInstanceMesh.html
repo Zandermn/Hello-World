@@ -249,7 +249,7 @@
         function setupVR()
         {
             document.body.appendChild(VRButton.createButton(renderer));
-            //renderer.xr.enabled = true;
+            renderer.xr.enabled = true;
             renderer.vr.enabled = true;
 
             renderer.setAnimationLoop(animate);
