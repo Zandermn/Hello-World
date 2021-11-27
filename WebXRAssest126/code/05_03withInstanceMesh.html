@@ -22,13 +22,14 @@
         import Stats from '../../WebXRAssest126/examples/jsm/libs/stats.module.js';
         import { VRButton } from '../../WebXRAssest126/examples/jsm/webxr/VRButton.js';
         import { GLTFLoader } from '../../WebXRAssest126/examples/jsm/loaders/GLTFLoader.js';
+        import { OBJLoader } from '../../WebXRAssest126/examples/jsm/loaders/OBJLoader.js';
         import { OrbitControls } from '../../WebXRAssest126/examples/jsm/controls/OrbitControls.js';
-
+      
+        //======create scene, camera, renderer and clock======
         //create stats monitor the performance
         const stats = new Stats();
         document.body.appendChild(stats.dom);
-        
-        //create scene, camera, renderer and clock
+
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x0f0f0f);
 
@@ -58,12 +59,6 @@
         controls.autoRotate = true;
         controls.autoRotateSpeed = 0.4;
 
-        //FirstPerson controls
-        // const controls = new FirstPersonControls( camera, renderer.domElement );
-		// controls.movementSpeed = 15;
-		// controls.lookSpeed = 0.2;
-
-
         //cube
         const cubeSize = 1;
         const cubeGeo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
@@ -74,30 +69,118 @@
         mesh.position.set(-1, 2, 1);
         scene.add(mesh);
 
-        //gltf loader scene
-        const loader = new GLTFLoader();
-        loader.load(
-            '../../WebXRAssest126/model/WetAsphaltGroundTile.glb',
-            function (gltf) {
-                const model = gltf.scene;
-                //model.scale.set(0.1, 0.1, 0.1);
-                model.position.set(0, 0, 0);
 
-                gltf.scene.traverse(
-                    function (node) {
-                        if (node.isMesh) {
-                            node.castShadow = true;
-                            node.receiveShadow = true;
-                        }
-                    }
-                );
-                scene.add(gltf.scene);
-            },
-            undefined,
-            function (error) {
-                console.error("Ground had some problem");
+        // //texture
+        // const image = new Image();
+        // image.onload = () =>
+        // {
+        //     console.log('image loaded')
+        // }
+        // image.src = '../../WebXRAssest126/img/BlendMaterial_BaseColor.png'
+
+     
+        const amount = 4, gap = 10, i = 0
+        const totalAmount = Math.pow(amount, 2)
+
+        const dummy = new THREE.Object3D
+        let groundMesh, groundGeo, groundMat;
+
+        const gLoader = new GLTFLoader();
+        gLoader.load(
+            '../../WebXRAssest126/model/PlaneLowT.glb',
+            function(gltf){
+                const _ground = gltf.scene;
+                groundGeo = _ground.geometry;
+                groundMat = _ground.material;
+                groundMesh = new THREE.InstancedMesh(groundGeo, groundMat, totalAmount)
+                groundMesh.instanceMatrix.setUsage( THREE.DynamicDrawUsage );
+                scene.add(groundMesh)
+
+                // for(let x = 0; x < amount ; x++){
+                //     for(let y = 0; y < amount ; y++){
+                //         dummy.position.set(x * gap, 0, y * gap)
+                //         groundMesh.setMatrixAt(i++, dummy.matrix)
+                //     }
+                // }
+                
             }
-        );
+        )
+    
+
+
+
+
+        // //Loader and InstanceMesh
+        // const amount = 4
+        // const totalAmount = Math.pow(amount, 2)
+        // let inmesh;
+
+        // new THREE.BufferGeometryLoader().load(
+        //     '../../WebXRAssest126/model/PlaneLowT.glb',
+        //     function(myGeometry){
+        //         //const model = myGeometry.scene;
+        //         //model.scale( 0.5, 0.5, 0.5 );
+        //         //model.position.set(0, 0, 0);
+
+        //         myGeometry.toNonIndexed();
+
+        //         // myGeometry.scene.traverse(
+        //         //     function (node) {
+        //         //         if (node.isMesh) {
+        //         //             node.castShadow = true;
+        //         //             node.receiveShadow = true;
+        //         //         }
+        //         //     }
+        //         // );
+
+        //         //inmesh = new THREE.InstancedMesh( myGeometry, totalAmount);
+
+        //         scene.add(myGeometry);
+        //     },
+        //     undefined,
+        //     function (error) {
+        //         console.error("Ground Instance had some problem");
+        //     }
+        // )
+
+
+        // const offset = 10, array = 4;
+        // const dummy = new THREE.Object3D();
+        // let i = 0;
+        // for(let x = 0; x < array;x++){
+        //     for(let y = 0;y < array; y++){
+        //         dummy.position.set(x * offset, y * offset)
+        //         mesh.setMatrixAt(i++, dummy.matrix)
+        //     }
+        // }
+
+
+        //gltf loader scene
+        // const loader = new GLTFLoader();
+        // loader.load(
+        //     '../../WebXRAssest126/model/PlaneLowT.glb',
+        //     function (gltf) {
+        //         const model = gltf.scene;
+        //         //model.scale.set(0.1, 0.1, 0.1);
+        //         model.position.set(0, 0, 0);
+
+        //         gltf.scene.traverse(
+        //             function (node) {
+        //                 if (node.isMesh) {
+        //                     node.castShadow = true;
+        //                     node.receiveShadow = true;
+        //                 }
+        //             }
+        //         );
+        //         scene.add(gltf.scene);
+        //     },
+        //     undefined,
+        //     function (error) {
+        //         console.error("Ground had some problem");
+        //     }
+        // );
+
+
 
         //Add lamp
         CreateLamp(-1,0,-6);
@@ -145,7 +228,7 @@
         //Set up vr button and session
         setupVR();
 
-        renderer.setAnimationLoop(animate);
+        
         
         //windows resize
         window.addEventListener("resize", onWindowResize);
@@ -165,8 +248,11 @@
         //SetupXr
         function setupVR()
         {
-            renderer.xr.enabled = true;
             document.body.appendChild(VRButton.createButton(renderer));
+            //renderer.xr.enabled = true;
+            renderer.vr.enabled = true;
+
+            renderer.setAnimationLoop(animate);
         }
 
         //anime & render
