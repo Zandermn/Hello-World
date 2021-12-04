@@ -23,10 +23,13 @@
 	</head>
 	<body>
         <script type="module">
+            //import App class from app.js
             import { App } from './app.js';
 
             document.addEventListener("DOMContentLoaded", function(){
+                //new instance of app class
                 const app = new App();
+                //window 对象将有一个被调用的属性设置为这个实例，以方便调试，这将是不可避免的。
                 window.app = app;
             });
         </script>

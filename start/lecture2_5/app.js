@@ -26,9 +26,12 @@ class App{
 		
         const geometry = new THREE.TorusKnotBufferGeometry( 0.8, 0.3, 120, 16 ); 
         
-        const material = new THREE.MeshPhongMaterial( { color: 0xFF0000, specular: 0x444444, shininess:60 });
+        //Material !!
+        const material = new THREE.MeshPhongMaterial( { color: 0x0000ff, specular: 0x444444, shininess:60 });
+        //const Basicmaterial = new THREE.MeshBasicMaterial({color: 0x00FF00 });
 
         this.mesh = new THREE.Mesh( geometry, material );
+        //this.mesh = new THREE.Mesh( geometry, Basicmaterial );
         
         this.scene.add(this.mesh);
         
