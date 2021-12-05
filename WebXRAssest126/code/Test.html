@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>TestTestTest</title>
+    <meta charset="utf-8">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="module">
+        //import App class from app.js
+        import{ MyApp } from './myapp.js';
+        
+        document.addEventListener("DOMContentLoaded", function(){
+            //new instance of myapp class
+            const myapp = new MyApp();
+            window.myapp = myapp;
+        });
+
+    </script>
+</body>
+
+</html>
