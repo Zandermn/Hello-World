@@ -49,7 +49,7 @@ class MyApp{
 		const geometry = new THREE.BoxBufferGeometry();
 		const material = new THREE.MeshStandardMaterial({color:0xff0000});
 		this.mesh = new THREE.Mesh(geometry, material);
-        this.mesh.position.set(0,1.5,0);
+        this.mesh.position.set(0,2,-2);
 		this.scene.add(this.mesh);
 
 
@@ -73,6 +73,8 @@ class MyApp{
         }
 
 
+
+
         const materialLine = new THREE.LineBasicMaterial({color: 0x0000ff});
         const points = [];
         points.push( new THREE.Vector3( - 10, 0, 0 ) );
@@ -81,6 +83,7 @@ class MyApp{
         const geometryLine = new THREE.BufferGeometry().setFromPoints( points );
         const line = new THREE.Line( geometryLine, materialLine );
         this.scene.add( line );
+        
     }
 
     random( min, max ){
