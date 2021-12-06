@@ -34,6 +34,10 @@ class MyApp{
 
         this.stats = new Stats();
         container.appendChild( this.stats.dom );
+
+        this.raycaster = new THREE.Raycaster();
+        this.workingMatrix = new THREE.Matrix4();
+        this.workingVector = new THREE.Vector3();
 		
         this.initScene();
         this.setupVR();
@@ -85,6 +89,11 @@ class MyApp{
         const line = new THREE.Line( geometryLine, materialLine );
         this.scene.add( line );
 
+        //highlight white mesh
+        this.highlight = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.BackSide}));
+        this.hightlight.scale.set(1.2,1.2,1.2);
+        this.scene.add(this.highlight);
+
     }
 
     randomFormRange( min, max ){
@@ -96,8 +105,28 @@ class MyApp{
         this.renderer.xr.enabled = true;
         document.body.appendChild( VRButton.createButton( this.renderer ) );
 
+        //for callback function
+        const self = this;
+
         //Create controllers
         this.controllers = this.buildControllers();
+
+        //onselect start and end
+        function onSelectStart(){
+            this.children[0].scale.z = 10;
+            this.userData.selectPressed = true;
+        }
+
+        function onSelectEnd(){
+            this.children[0].scale.z = 0;
+            self.highlight.visible = false;
+            this.userData.selectPressed = false;
+        }
+
+        this.controllers.forEach( (controller) => {
+            controller.addEventListener( 'selectstart', onSelectStart );
+            controller.addEventListener( 'selectend', onSelectEnd );
+        });
     }
 
     //A virtual pairs of controlelrs
@@ -130,7 +159,24 @@ class MyApp{
     }
 
     handleController( controller ){
-        
+        if (controller.userData.selectPressed ){
+            controller.children[0].scale.z = 10;
+
+            this.workingMatrix.identity().extractRotation( controller.matrixWorld );
+
+            this.raycaster.ray.origin.setFromMatrixPosition( controller.matrixWorld );
+            this.raycaster.ray.direction.set( 0, 0, - 1 ).applyMatrix4( this.workingMatrix );
+
+            const intersects = this.raycaster.intersectObjects( this.room.children );
+
+            if (intersects.length>0){
+                intersects[0].object.add(this.highlight);
+                this.highlight.visible = true;
+                controller.children[0].scale.z = intersects[0].distance;
+            }else{
+                this.highlight.visible = false;
+            }
+        }
     }
 
     resize(){
