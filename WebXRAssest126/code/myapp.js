@@ -64,14 +64,14 @@ class MyApp{
         this.room.geometry.translate(0,3,0);
         this.scene.add(this.room);
 
-        //random ico
+        //randomFormRange ico
         this.radius = 0.08;
         const geometryIco = new THREE.IcosahedronBufferGeometry( this.radius, 2 );
         for ( let i = 0; i < 200; i ++ ) {
-            const object = new THREE.Mesh( geometryIco, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
-            object.position.x = this.random( -2, 2 );
-            object.position.y = this.random( -2, 2 );
-            object.position.z = this.random( -2, 2 );
+            const object = new THREE.Mesh( geometryIco, new THREE.MeshLambertMaterial( { color: Math.randomFormRange() * 0xffffff } ) );
+            object.position.x = this.randomFormRange( -2, 2 );
+            object.position.y = this.randomFormRange( -2, 2 );
+            object.position.z = this.randomFormRange( -2, 2 );
             this.room.add( object );
         }
 
@@ -89,7 +89,7 @@ class MyApp{
 
     }
 
-    random( min, max ){
+    randomFormRange( min, max ){
         return Math.random() * (max-min) + min;
     }
 
@@ -102,6 +102,7 @@ class MyApp{
         this.controllers = this.buildControllers();
     }
 
+    //A virtual pairs of controlelrs
     buildControllers(){
         const controllerModelFactory = new XRControllerModelFactory();
         const geometry = new THREE.BufferGeometry().setFromPoints([
@@ -122,7 +123,7 @@ class MyApp{
             controllers.puch(controller);
 
             const grip = this.renderer.xr.getControllerGrip(i);
-            grip.add(controllerModelFactor.createControllerModel(grip));
+            grip.add(controllerModelFactory.createControllerModel(grip));
             this.scene.add(grip);
         }
 
