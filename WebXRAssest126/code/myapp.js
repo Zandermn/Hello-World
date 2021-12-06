@@ -91,6 +91,7 @@ class MyApp{
 
         //highlight white mesh
         this.highlight = new THREE.Mesh(geometryIco, new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.BackSide}));
+        this.highlight.position.set(0,-5,0);
         this.highlight.scale.set(1.2,1.2,1.2);
         this.scene.add(this.highlight);
 
