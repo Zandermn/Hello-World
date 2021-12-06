@@ -67,9 +67,9 @@ class MyApp{
         const geometryIco = new THREE.IcosahedronBufferGeometry( this.radius, 2 );
         for ( let i = 0; i < 200; i ++ ) {
             const object = new THREE.Mesh( geometryIco, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
-            object.position.x = this.randomFormRange( -2, 2 );
-            object.position.y = this.randomFormRange( -2, 2 );
-            object.position.z = this.randomFormRange( -2, 2 );
+            object.position.x = this.randomFormRange( -4, 4 );
+            object.position.y = this.randomFormRange( 0, 2 );
+            object.position.z = this.randomFormRange( -4, 4 );
             this.room.add( object );
         }
 
