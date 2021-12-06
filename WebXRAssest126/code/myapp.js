@@ -54,8 +54,6 @@ class MyApp{
         this.mesh.position.set(0,2,-2);
 		this.scene.add(this.mesh);
 
-
-
         //Cube line
         this.room = new THREE.LineSegments(
             new THREE.BoxGeometry(8,8,8,8,8,8),
@@ -68,14 +66,12 @@ class MyApp{
         this.radius = 0.08;
         const geometryIco = new THREE.IcosahedronBufferGeometry( this.radius, 2 );
         for ( let i = 0; i < 200; i ++ ) {
-            const object = new THREE.Mesh( geometryIco, new THREE.MeshLambertMaterial( { color: Math.randomFormRange() * 0xffffff } ) );
+            const object = new THREE.Mesh( geometryIco, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
             object.position.x = this.randomFormRange( -2, 2 );
             object.position.y = this.randomFormRange( -2, 2 );
             object.position.z = this.randomFormRange( -2, 2 );
             this.room.add( object );
         }
-
-
 
         //blueline
         const materialLine = new THREE.LineBasicMaterial({color: 0x0000ff});
