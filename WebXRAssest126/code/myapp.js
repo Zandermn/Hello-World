@@ -4,6 +4,7 @@ import { VRButton } from '../examples/jsm/webxr/VRButton.js';
 import { GLTFLoader } from '../examples/jsm/loaders/GLTFLoader.js';
 import { OBJLoader } from '../examples/jsm/loaders/OBJLoader.js';
 import { OrbitControls } from '../examples/jsm/controls/OrbitControls.js';
+import { XRControllerModelFactory } from '../../libs/three/jsm/XRControllerModelFactory.js';
 
 class MyApp{
     constructor(){
@@ -46,6 +47,7 @@ class MyApp{
 		light.position.set(0.2, 1, 1);
 		this.scene.add(light);
 
+        //Redcube
 		const geometry = new THREE.BoxBufferGeometry();
 		const material = new THREE.MeshStandardMaterial({color:0xff0000});
 		this.mesh = new THREE.Mesh(geometry, material);
@@ -54,7 +56,7 @@ class MyApp{
 
 
 
-
+        //Cube line
         this.room = new THREE.LineSegments(
             new THREE.BoxGeometry(8,8,8,8,8,8),
             new THREE.LineBasicMaterial({color:0xffffff})
@@ -62,6 +64,7 @@ class MyApp{
         this.room.geometry.translate(0,3,0);
         this.scene.add(this.room);
 
+        //random ico
         this.radius = 0.08;
         const geometryIco = new THREE.IcosahedronBufferGeometry( this.radius, 2 );
         for ( let i = 0; i < 200; i ++ ) {
@@ -74,7 +77,7 @@ class MyApp{
 
 
 
-
+        //blueline
         const materialLine = new THREE.LineBasicMaterial({color: 0x0000ff});
         const points = [];
         points.push( new THREE.Vector3( - 10, 0, 0 ) );
@@ -83,7 +86,7 @@ class MyApp{
         const geometryLine = new THREE.BufferGeometry().setFromPoints( points );
         const line = new THREE.Line( geometryLine, materialLine );
         this.scene.add( line );
-        
+
     }
 
     random( min, max ){
@@ -91,8 +94,39 @@ class MyApp{
     }
 
     setupVR(){
+        //Create VRButton and create VRSession
         this.renderer.xr.enabled = true;
         document.body.appendChild( VRButton.createButton( this.renderer ) );
+
+        //Create controllers
+        this.controllers = this.buildControllers();
+    }
+
+    buildControllers(){
+        const controllerModelFactory = new XRControllerModelFactory();
+        const geometry = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(0,0,0),
+            new THREE.Vector3(0,0,-1)
+        ]);
+        const line = new THREE.Line(geometry);
+        line.name = 'controllerLine';
+        line.scale.z = 0;
+
+        const controllers = [];
+        for(let i = 0; i <= 1; i++){
+            const controller = this.renderer.xr.getController(i);
+            controller.add(line.clone());
+            controller.userData.selectPressed = false;
+            this.scene.add(controller);
+
+            controllers.puch(controller);
+
+            const grip = this.renderer.xr.getControllerGrip(i);
+            grip.add(controllerModelFactor.createControllerModel(grip));
+            this.scene.add(grip);
+        }
+
+        return controllers;
     }
 
     resize(){
