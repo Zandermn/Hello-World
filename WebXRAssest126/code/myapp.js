@@ -37,6 +37,7 @@ class MyApp{
         this.initScene();
         this.setupVR();
         window.addEventListener('resize', this.resize.bind(this) );
+        this.renderer.setAnimationLoop( this.render.bind(this) );
     }
 
     initScene(){
@@ -135,6 +136,16 @@ class MyApp{
     render() {  
 		this.mesh.rotateY(0.01);
         this.stats.update();
+
+        if (this.controllers ){
+            const self = this;
+            this.controllers.forEach( ( controller) => { 
+                self.handleController( controller ) 
+            });
+        }
+
+
+
         this.renderer.render(this.scene, this.camera);
     }
 }
