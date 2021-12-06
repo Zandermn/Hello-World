@@ -61,7 +61,7 @@ class MyApp{
             new THREE.BoxGeometry(8,8,8,8,8,8),
             new THREE.LineBasicMaterial({color:0xffffff})
         );
-        this.room.geometry.translate(0,3,0);
+        this.room.geometry.translate(0,4,0);
         this.scene.add(this.room);
 
         //randomFormRange ico
