@@ -3,6 +3,7 @@ import Stats from '../examples/jsm/libs/stats.module.js';
 import { VRButton } from '../examples/jsm/webxr/VRButton.js';
 import { GLTFLoader } from '../examples/jsm/loaders/GLTFLoader.js';
 import { OBJLoader } from '../examples/jsm/loaders/OBJLoader.js';
+//import { BoxLineGeometry } from '../examples/jsm/geometries/BoxLineGeometry.js'
 import { OrbitControls } from '../examples/jsm/controls/OrbitControls.js';
 import { XRControllerModelFactory } from '../../libs/three/jsm/XRControllerModelFactory.js';
 
@@ -107,17 +108,18 @@ class MyApp{
             new THREE.Vector3(0,0,-1)
         ]);
         const line = new THREE.Line(geometry);
-        line.name = 'controllerLine';
-        line.scale.z = 0;
+        line.name = 'line';
+        line.scale.z = 10;
 
         const controllers = [];
+
         for(let i = 0; i <= 1; i++){
             const controller = this.renderer.xr.getController(i);
             controller.add(line.clone());
             controller.userData.selectPressed = false;
             this.scene.add(controller);
 
-            controllers.puch(controller);
+            controllers.push(controller);
 
             const grip = this.renderer.xr.getControllerGrip(i);
             grip.add(controllerModelFactory.createControllerModel(grip));
@@ -125,6 +127,10 @@ class MyApp{
         }
 
         return controllers;
+    }
+
+    handleController( controller ){
+        
     }
 
     resize(){
