@@ -133,6 +133,11 @@ class MyApp{
         this.CreateLamp(-5,0,5);
         this.CreateLamp(5,0,-5);
         this.CreateLamp(5,0,5);
+
+        //Car
+        this.CreateCar(-2,0,2,0);
+        this.CreateCar(0,0,-3,Math.PI *0.4);
+        this.CreateCar(0,0,-3,Math.PI);
     }
 
     
@@ -264,6 +269,34 @@ class MyApp{
             undefined, 
             function (error) {
                 console.error("Barrel had some problem");
+            }
+        );
+    }
+
+    CreateCar(x,y,z,R)
+    {
+        const self = this;
+        const loaderB = new GLTFLoader();
+        loaderB.load(
+            '../../WebXRAssest126/model/CyberCarLowPoly.glb',
+            function (gltf) {
+                const model = gltf.scene;
+                model.position.set(x,y,z);
+                model.rotateY(R);
+
+                gltf.scene.traverse(
+                    function (node) {
+                        if (node.isMesh) {
+                            node.castShadow = true;
+                            node.receiveShadow = true;
+                        }
+                    }
+                );
+                self.scene.add(gltf.scene);
+            }, 
+            undefined, 
+            function (error) {
+                console.error("Car had some problem");
             }
         );
     }
