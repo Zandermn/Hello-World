@@ -3,7 +3,7 @@ import Stats from '../examples/jsm/libs/stats.module.js';
 import { VRButton } from '../examples/jsm/webxr/VRButton.js';
 import { GLTFLoader } from '../examples/jsm/loaders/GLTFLoader.js';
 import { OBJLoader } from '../examples/jsm/loaders/OBJLoader.js';
-//import { BoxLineGeometry } from '../examples/jsm/geometries/BoxLineGeometry.js'
+import { BoxLineGeometry } from '../examples/jsm/geometries/BoxLineGeometry.js'
 import { OrbitControls } from '../examples/jsm/controls/OrbitControls.js';
 import { XRControllerModelFactory } from '../../libs/three/jsm/XRControllerModelFactory.js';
 
@@ -17,7 +17,7 @@ class MyApp{
         this.camera.lookAt(0,40,0);
 
         this.scene = new THREE.Scene();
-		this.scene.background = new THREE.Color(0xaaaaaa);
+		this.scene.background = new THREE.Color(0x000000);
 
 		this.renderer = new THREE.WebGLRenderer({antialias:true, powerPerference: "high-performance" });
 		this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -46,55 +46,93 @@ class MyApp{
     }
 
     initScene(){
+        //lights
 		const ambient = new THREE.HemisphereLight(0xffffff,0xbbbbff,0.3);
+        ambient.position.set(0, 10, 0);
 		this.scene.add(ambient);
 		
-		const light = new THREE.DirectionalLight();
-		light.position.set(0.2, 1, 1);
-		this.scene.add(light);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+        dirLight.castShadow = true;
+        dirLight.color.setHSL(0.1, 1, 0.95);
+        dirLight.position.set(- 1, 1.75, 1);
+        dirLight.position.multiplyScalar(8);
+        dirLight.shadow.mapSize.width = 2048;
+        dirLight.shadow.mapSize.height = 2048;
+        const d = 20;
+        dirLight.shadow.camera.left = - d;
+        dirLight.shadow.camera.right = d;
+        dirLight.shadow.camera.top = d;
+        dirLight.shadow.camera.bottom = - d;
+        dirLight.shadow.camera.far = 1000;
+        dirLight.shadow.bias = - 0.0001;
+        this.scene.add(dirLight);
 
         //Redcube
 		const geometry = new THREE.BoxBufferGeometry();
 		const material = new THREE.MeshStandardMaterial({color:0xff0000});
 		this.mesh = new THREE.Mesh(geometry, material);
-        this.mesh.position.set(0,2,-2);
+        this.mesh.position.set(0,3,-3);
 		this.scene.add(this.mesh);
 
         //Cube line
         this.room = new THREE.LineSegments(
-            new THREE.BoxGeometry(8,8,8,8,8,8),
+            new BoxLineGeometry(30,8,30,6,6,6),
             new THREE.LineBasicMaterial({color:0xffffff})
         );
-        this.room.geometry.translate(0,4,0);
+        this.room.geometry.translate(0,3.95,0);
         this.scene.add(this.room);
 
         //randomFormRange ico
         this.radius = 0.08;
         const geometryIco = new THREE.IcosahedronBufferGeometry( this.radius, 2 );
-        for ( let i = 0; i < 200; i ++ ) {
+        for ( let i = 0; i < 400; i ++ ) {
             const object = new THREE.Mesh( geometryIco, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
-            object.position.x = this.randomFormRange( -4, 4 );
-            object.position.y = this.randomFormRange( 0, 2 );
-            object.position.z = this.randomFormRange( -4, 4 );
+            object.position.x = this.randomFormRange( -15, 15 );
+            object.position.y = this.randomFormRange( 3, 8 );
+            object.position.z = this.randomFormRange( -15, 15 );
             this.room.add( object );
         }
 
         //blueline
-        const materialLine = new THREE.LineBasicMaterial({color: 0x0000ff});
-        const points = [];
-        points.push( new THREE.Vector3( - 10, 0, 0 ) );
-        points.push( new THREE.Vector3( 0, 10, 0 ) );
-        points.push( new THREE.Vector3( 10, 0, 0 ) );
-        const geometryLine = new THREE.BufferGeometry().setFromPoints( points );
-        const line = new THREE.Line( geometryLine, materialLine );
-        this.scene.add( line );
+        // const materialLine = new THREE.LineBasicMaterial({color: 0x0000ff});
+        // const points = [];
+        // points.push( new THREE.Vector3( - 10, 0, 0 ) );
+        // points.push( new THREE.Vector3( 0, 10, 0 ) );
+        // points.push( new THREE.Vector3( 10, 0, 0 ) );
+        // const geometryLine = new THREE.BufferGeometry().setFromPoints( points );
+        // const line = new THREE.Line( geometryLine, materialLine );
+        // this.scene.add( line );
 
         //highlight white mesh
         this.highlight = new THREE.Mesh(geometryIco, new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.BackSide}));
         this.highlight.scale.set(1.2, 1.2, 1.2);
         this.scene.add(this.highlight);
 
+        //Ground
+        const TileG = 4;
+        const distance = 10;
+        const offsetX = -10;
+        const offsetY = -20;
+        for(let i = 0; i < TileG; i++){
+            for(let j = 0; j < TileG; j++){
+                this.CreateGround(i * distance + offsetX, 0, j * distance + offsetY);
+            }
+        }
+
+        this.CreateBarrel(0,0,-1);
+        this.CreateBarrel(0.7,0,-0.8);
+        this.CreateBarrel(6,0,-3.3);
+        this.CreateBarrel(7,0,-4.1);
+
+        this.CreateBox(5.3,0,-4.5);
+
+        this.CreateLamp(-5,0,-5);
+        this.CreateLamp(-5,0,5);
+        this.CreateLamp(5,0,-5);
+        this.CreateLamp(5,0,5);
     }
+
+    
 
     randomFormRange( min, max ){
         return Math.random() * (max-min) + min;
@@ -180,9 +218,10 @@ class MyApp{
     }
 
     resize(){
+		this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.camera.aspect = window.innerWidth/window.innerHeight;
 		this.camera.updateProjectionMatrix();
-		this.renderer.setSize(window.innerWidth, window.innerHeight);
+        console.log("Resized");
     }
 
     render() {  
@@ -197,6 +236,141 @@ class MyApp{
         }
 
         this.renderer.render(this.scene, this.camera);
+    }
+
+    CreateBarrel(x,y,z)
+    {
+        const self = this;
+        const loaderB = new GLTFLoader();
+        loaderB.load(
+            '../../WebXRAssest/model/Barrel.glb',
+            function (gltf) {
+                const model = gltf.scene;
+                model.position.set(x,y,z);
+
+                gltf.scene.traverse(
+                    function (node) {
+                        if (node.isMesh) {
+                            node.castShadow = true;
+                            node.receiveShadow = true;
+                        }
+                    }
+                );
+                self.scene.add(gltf.scene);
+            }, 
+            undefined, 
+            function (error) {
+                console.error("Barrel had some problem");
+            }
+        );
+    }
+
+    CreateBox(x,y,z)
+    {
+        const self = this;
+        const loaderBox = new GLTFLoader();
+        loaderBox.load(
+            '../../WebXRAssest/model/Boxes.glb',
+            function (gltf) {
+                const model = gltf.scene;
+                model.position.set(x,y,z);
+
+                gltf.scene.traverse(
+                    function (node) {
+                        if (node.isMesh) {
+                            node.castShadow = true;
+                            node.receiveShadow = true;
+                        }
+                    }
+                );
+                self.scene.add(gltf.scene);
+            }, 
+            undefined, 
+            function (error) {
+                console.error("Boxes had some problem");
+            }
+        );
+    }
+
+    CreateGround(x,y,z)
+    {
+        const self = this;
+        const loaderGround = new GLTFLoader();
+        loaderGround.load(
+            '../../WebXRAssest126/model/PlaneLowT.glb',
+            function(gltf){
+                const model = gltf.scene;
+                model.position.set(x,y,z);
+
+                gltf.scene.traverse(
+                    function (node) {
+                        if (node.isMesh) {
+                            node.castShadow = true;
+                            node.receiveShadow = true;
+                        }
+                    }
+                );
+                self.scene.add(gltf.scene);
+            },
+            undefined, 
+            function (error) {
+                console.error("Ground had some problem");
+            }
+        );
+
+    }
+
+    CreateLamp(x,y,z)
+    {
+        const self = this;
+
+        const spotlightx = x - 1.7;
+        const spotlighty = y + 3.5;
+        const spotlightz = z;
+
+        //Lamp
+        const loader1024 = new GLTFLoader();
+        loader1024.load(
+            '../../WebXRAssest/model/lamp1024.glb',
+            function (gltf) {
+                const model = gltf.scene;
+                model.scale.set(0.1, 0.1, 0.1);
+                model.position.set(x,y,z);
+
+                gltf.scene.traverse(
+                    function (node) {
+                        if (node.isMesh) {
+                            node.castShadow = true;
+                            node.receiveShadow = true;
+                        }
+                    }
+                );
+                self.scene.add(gltf.scene);
+
+            }, undefined, function (error) {
+                console.error("Lamp had some problem");
+            }
+        );
+
+        const spotLight = new THREE.SpotLight( 0xffffff );
+        spotLight.position.set( spotlightx, spotlighty, spotlightz );
+        spotLight.castShadow = true;
+        spotLight.shadow.mapSize.width = 1024;
+        spotLight.shadow.mapSize.height = 1024;
+        spotLight.shadow.camera.near = 10;
+        spotLight.shadow.camera.far = 500;
+        spotLight.shadow.camera.fov = 30;
+        spotLight.penumbra = 0.5;
+        spotLight.intensity = 2;
+        spotLight.distance = 50;
+
+        const targetObject = new THREE.Object3D();
+        targetObject.position.set(spotlightx, spotlighty - 1, spotlightz);
+        self.scene.add(targetObject);
+
+        spotLight.target = targetObject;
+        self.scene.add( spotLight );
+
     }
 }
 
