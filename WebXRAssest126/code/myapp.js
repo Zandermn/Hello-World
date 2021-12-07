@@ -119,13 +119,16 @@ class MyApp{
             }
         }
 
+        //Barrel
         this.CreateBarrel(0,0,-1);
         this.CreateBarrel(0.7,0,-0.8);
         this.CreateBarrel(6,0,-3.3);
         this.CreateBarrel(7,0,-4.1);
 
+        //Box
         this.CreateBox(5.3,0,-4.5);
 
+        //Lamp and light
         this.CreateLamp(-5,0,-5);
         this.CreateLamp(-5,0,5);
         this.CreateLamp(5,0,-5);
